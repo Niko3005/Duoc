@@ -1,0 +1,75 @@
+def ingresar_datos():
+    while True:
+        nombre = input("Ingrese el nombre del trabajador: ").strip()
+        if not nombre:
+            print("El nombre no puede estar vacío.")
+            continue
+        if len(nombre) > 30:
+            print("El nombre no puede tener más de 30 caracteres.")
+            continue
+        
+        try:
+            sueldo_base = float(input("Ingrese el sueldo base: "))
+            if sueldo_base <= 0:
+                raise ValueError("El sueldo base debe ser un valor numérico positivo.")
+            
+            horas_extras = float(input("Ingrese el número de horas extras trabajadas: "))
+            if horas_extras < 0:
+                raise ValueError("Las horas extras deben ser un valor numérico positivo.")
+            
+        except ValueError as e:
+            print(e)
+            continue
+        
+        return nombre, sueldo_base, horas_extras
+
+def calcular_liquidacion(sueldo_base, horas_extras):
+    pago_hora_extra = (sueldo_base / 176) * 1.5 * horas_extras  # Asumiendo 176 horas laborales al mes con reduccion ley 40...
+    total_ingresos = sueldo_base + pago_hora_extra
+    descuento_fonasa = total_ingresos * 0.07
+    descuento_afp = total_ingresos * 0.10
+    sueldo_neto = total_ingresos - descuento_fonasa - descuento_afp
+    
+    return {
+        'sueldo_base': sueldo_base,
+        'pago_hora_extra': pago_hora_extra,
+        'total_ingresos': total_ingresos,
+        'descuento_fonasa': descuento_fonasa,
+        'descuento_afp': descuento_afp,
+        'sueldo_neto': sueldo_neto
+    }
+
+def mostrar_liquidacion(nombre, liquidacion):
+    print(f"\nLiquidación de Sueldo de {nombre}")
+    print(f"Sueldo Base: ${liquidacion['sueldo_base']:.2f}")
+    print(f"Pago por Horas Extras: ${liquidacion['pago_hora_extra']:.2f}")
+    print(f"Total de Ingresos: ${liquidacion['total_ingresos']:.2f}")
+    print(f"Descuento por FONASA: ${liquidacion['descuento_fonasa']:.2f}")
+    print(f"Descuento por AFP: ${liquidacion['descuento_afp']:.2f}")
+    print(f"Sueldo Neto a Pagar: ${liquidacion['sueldo_neto']:.2f}")
+
+def generar_archivo(nombre, liquidacion):
+    filename = f"liquidacion_{nombre.replace(' ', '_')}.txt"
+    with open(filename, 'w') as file:
+        file.write(f"Liquidación de Sueldo de {nombre}\n")
+        file.write(f"Sueldo Base: ${liquidacion['sueldo_base']:.2f}\n")
+        file.write(f"Pago por Horas Extras: ${liquidacion['pago_hora_extra']:.2f}\n")
+        file.write(f"Total de Ingresos: ${liquidacion['total_ingresos']:.2f}\n")
+        file.write(f"Descuento por FONASA: ${liquidacion['descuento_fonasa']:.2f}\n")
+        file.write(f"Descuento por AFP: ${liquidacion['descuento_afp']:.2f}\n")
+        file.write(f"Sueldo Neto a Pagar: ${liquidacion['sueldo_neto']:.2f}\n")
+    print(f"Archivo {filename} generado correctamente.")
+
+def main():
+    while True:
+        nombre, sueldo_base, horas_extras = ingresar_datos()
+        liquidacion = calcular_liquidacion(sueldo_base, horas_extras)
+        mostrar_liquidacion(nombre, liquidacion)
+        generar_archivo(nombre, liquidacion)
+        
+        otra = input("¿Desea calcular la liquidación de otro trabajador? (s/n): ").strip().lower()
+        if otra != 's':
+            break
+
+if __name__ == "__main__":
+    main()
